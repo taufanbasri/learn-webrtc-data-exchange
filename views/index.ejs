@@ -40,6 +40,11 @@
                 }]
             };
             var rtcPeerConn;
+            var dataChannelOptions = {
+                ordered: false, // no guaranteed delivery, unreliable but faster
+                maxRetransmitTime: 1000, // miliseconds
+            };
+            var dataChannel;
 
             io = io.connect();
             io.emit('ready', {
@@ -81,7 +86,11 @@
             function startSignaling() {
                 displaySignalMessage('starting signaling...')
 
-                rtcPeerConn = new webkitRTCPeerConnection(configuration);
+                rtcPeerConn = new webkitRTCPeerConnection(configuration, null);
+                dataChannel = rtcPeerConn.createDataChannel('textMessages', dataChannelOptions);
+
+                dataChannel.onopen = dataChannelStateChanged;
+                rtcPeerConn.ondatachannel = receiveDataChannel;
 
                 // send any ice candidates to the other peer
                 rtcPeerConn.onicecandidate = function (evt) {
@@ -115,12 +124,37 @@
 
                 navigator.getUserMedia({
                     'audio': true,
-                    'video': true
+                    'video': {
+                        mandatory: {
+                            minWidth: 320,
+                            maxWidth: 320,
+                            minHeight: 180,
+                            maxHeight: 180
+                        }
+                    }
                 }, function (stream) {
                     displaySignalMessage('going to display my stream...');
                     myVideoArea.srcObject = stream;
                     rtcPeerConn.addStream(stream);
                 }, logError);
+            }
+
+            function dataChannelStateChanged() {
+                if (dataChannel.readyState === 'open') {
+                    displaySignalMessage('Data Channel Open');
+                    dataChannel.onmessage = receiveDataChannelMessage;
+                }
+            }
+
+            function receiveDataChannel(event) {
+                displaySignalMessage('Receiving a data channel');
+                dataChannel = event.channel;
+                dataChannel.onmessage = receiveDataChannelMessage;
+            }
+
+            function receiveDataChannelMessage(event) {
+                displaySignalMessage('Incoming Message');
+                displayMessage('From DataChannel: ' + event.data);
             }
 
             function sendLocalDesc(desc) {
@@ -155,6 +189,7 @@
                     "room": ROOM
                 });
 
+                dataChannel.send(myName.value + ' says ' + myMessage.value);
                 ev.preventDefault();
             }, false);
 
