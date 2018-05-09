@@ -11,6 +11,13 @@
         <video id="theirVideoTag" autoplay></video>
 
         <div>
+            <input type="file" id="sendFile"><br>
+            <progress id="fileProgress" value="1" max="100">0%</progress>
+            <a id="receivedFileLink"></a>
+            <hr>
+        </div>
+
+        <div>
             <label>Your Name</label>
             <input type="text" id="myName">
             <label>Message</label>
@@ -32,6 +39,11 @@
             var sendMessage = document.querySelector('#sendMessage');
             var chatArea = document.querySelector('#chatArea');
             var signalingArea = document.querySelector('#signalingArea');
+
+            var sendFile = document.querySelector('#sendFile');
+            var fileProgress = document.querySelector('progress#fileProgress');
+            var downloadLink = document.querySelector('a#receivedFileLink');
+
             var ROOM = 'chat';
             var SIGNAL_ROOM = 'signal_room';
             var configuration = {
@@ -155,6 +167,8 @@
             function receiveDataChannelMessage(event) {
                 displaySignalMessage('Incoming Message');
                 displayMessage('From DataChannel: ' + event.data);
+
+                // This is where we process incoming files
             }
 
             function sendLocalDesc(desc) {
@@ -189,7 +203,7 @@
                     "room": ROOM
                 });
 
-                dataChannel.send(myName.value + ' says ' + myMessage.value);
+                // dataChannel.send(myName.value + ' says ' + myMessage.value);
                 ev.preventDefault();
             }, false);
 
