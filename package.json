@@ -1,0 +1,19 @@
+{
+  "name": "webrtc-socketio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "coffee-script": "^1.12.7",
+    "connect": "^3.6.6",
+    "ejs": "^2.6.1",
+    "express": "^4.16.3",
+    "express.io": "^1.1.13"
+  }
+}
